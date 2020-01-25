@@ -52,10 +52,7 @@ class ExtramemView extends DatarunpremiumView {
 	var currentCadence						= 0;
 	var LapCadence							= 0;
 	var LastLapCadence						= 0;
-	var AverageCadence 						= 0; 
-	hidden var ChartValue 					= new [175];	
-	hidden var MaxChartValue				= 0;
-	hidden var MinChartValue				= 0.01;
+	var AverageCadence 						= 0; 	
 	
     function initialize() {
         DatarunpremiumView.initialize();
@@ -554,15 +551,11 @@ class ExtramemView extends DatarunpremiumView {
 		    		}
 			   	} else if ( i == 9 ) {	//!lower row, left
 		   			if (disablelabel9 == false) {
-		   				if (uGraphBottomRow == false) {
-		   					Coloring(dc,i,fieldValue[i],"036,222,092,015");
-		   				}
+		   				Coloring(dc,i,fieldValue[i],"036,222,092,015");
 		   			}
 		      	} else if ( i == 10 ) {	//!lower row, right
 		    		if (disablelabel10 == false) {
-		    			if (uGraphBottomRow == false) {
-		    				Coloring(dc,i,fieldValue[i],"130,222,095,015");
-		    			}
+		    			Coloring(dc,i,fieldValue[i],"130,222,095,015");
 		    		}
 	    		}	
 	    	}			
@@ -622,15 +615,11 @@ class ExtramemView extends DatarunpremiumView {
 		    		}
 			   	} else if ( i == 9 ) {	//!lower row, left
 		   			if (disablelabel9 == false) {
-		   				if (uGraphBottomRow == false) {
-		   					Coloring(dc,i,fieldValue[i],"039,240,099,016");
-		   				}
+		   				Coloring(dc,i,fieldValue[i],"039,240,099,016");
 		   			}
 		      	} else if ( i == 10 ) {	//!lower row, right
 		    		if (disablelabel10 == false) {
-		    			if (uGraphBottomRow == false) {
-		    				Coloring(dc,i,fieldValue[i],"140,240,105,016");
-		    			}
+		    			Coloring(dc,i,fieldValue[i],"140,240,105,016");
 		    		}
 	    		}
 	    	}
@@ -690,15 +679,11 @@ class ExtramemView extends DatarunpremiumView {
 		    		}
 			   	} else if ( i == 9 ) {	//!lower row, left
 		   			if (disablelabel9 == false) {
-		   				if (uGraphBottomRow == false) {
-		   					Coloring(dc,i,fieldValue[i],"033,205,085,014");
-		   				}
+		   				Coloring(dc,i,fieldValue[i],"033,205,085,014");
 		   			}
 		      	} else if ( i == 10 ) {	//!lower row, right
 		    		if (disablelabel10 == false) {
-		    			if (uGraphBottomRow == false) {
-		    				Coloring(dc,i,fieldValue[i],"120,205,085,014");
-		    			}
+		    			Coloring(dc,i,fieldValue[i],"120,205,085,014");
 		    		}
 	    		}
 	    	}	
@@ -993,20 +978,7 @@ class ExtramemView extends DatarunpremiumView {
 		dc.setColor(mfillColour, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(x, y, w, h);
 	}	
-	
-	//!Chart function
-	function drawChart(dc,charttimescale,chartverttscale,horChartlength,vertChartheight,x_startpointChart,y_startpointChart) {
-		var maxchartvalue = 300;
-
-		var i = 0;
-		for (i = 0; i < jTimertime; ++i) { 
-			dc.drawLine(x_startpointChart+horChartlength-jTimertime+i , y_startpointChart , x_startpointChart+horChartlength-jTimertime+i , y_startpointChart-ChartValue[i]*vertChartheight/maxchartvalue);
-		}
-	
-   }	
 }
-
-
 
 //! Create a method to get the SensorHistoryIterator object
 function getIterator() {
