@@ -144,8 +144,8 @@ class DatarunpremiumView extends Ui.DataField {
          uRacedistance		 = mApp.getProperty("pRacedistance");
          uRacetime			 = mApp.getProperty("pRacetime");
          uETAfromLap		 = mApp.getProperty("pETAfromLap");
-         var uCCnumber	     = mApp.getProperty("pCCnumber");
          var uHrZones = UserProfile.getHeartRateZones(UserProfile.getCurrentSport());
+         var uCCnumber	     = mApp.getProperty("pCCnumber");
           	 
         if (System.getDeviceSettings().paceUnits == System.UNIT_STATUTE) {
             unitP = 1609.344;
