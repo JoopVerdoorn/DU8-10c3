@@ -72,7 +72,6 @@ class CiqView extends ExtramemView {
 		
 		labelFontOffset = (uLfont240big == true) ? 1 : 0;
 		
-		i = 0;	
 		for (i = 1; i < 11; ++i) {
 			Power[i] = 0;
 		}
@@ -104,6 +103,44 @@ class CiqView extends ExtramemView {
 		}
     }
 
+    //! Timer transitions from stopped to running state
+    function onTimerStart() {
+        startStopPushed();
+        mTimerRunning = true;
+    }
+
+
+    //! Timer transitions from running to stopped state
+    function onTimerStop() {
+        startStopPushed();
+        mTimerRunning = false;
+    }
+
+
+    //! Timer transitions from paused to running state (i.e. resume from Auto Pause is triggered)
+    function onTimerResume() {
+        mTimerRunning = true;
+    }
+
+
+    //! Timer transitions from running to paused state (i.e. Auto Pause is triggered)
+    function onTimerPause() {
+        mTimerRunning = false;
+    }
+
+    
+    //! Start/stop button was pushed - emulated via timer start/stop
+    function startStopPushed() {     
+    	var info = Activity.getActivityInfo();   
+        var doublePressTimeMs = null;
+        if ( mStartStopPushed > 0  &&  info.elapsedTime > 0 ) {
+            doublePressTimeMs = info.elapsedTime - mStartStopPushed;
+        }
+        if ( doublePressTimeMs != null  &&  doublePressTimeMs < 5000 ) {
+            uNoAlerts = !uNoAlerts;
+        }
+        mStartStopPushed = (info.elapsedTime != null) ? info.elapsedTime : 0;
+    }
 
     //! Calculations we need to do every second even when the data field is not visible
     function compute(info) {
@@ -112,6 +149,8 @@ class CiqView extends ExtramemView {
              Attention.backlight(true);
         }
 		//! We only do some calculations if the timer is running
+		startTime = (jTimertime == 0) ? Toybox.System.getClockTime() : startTime;
+		
 		if (mTimerRunning) {  
 			jTimertime 		 = jTimertime + 1;
 			//!Calculate lapheartrate
@@ -120,6 +159,33 @@ class CiqView extends ExtramemView {
            	//!Calculate lapCadence
             mCadenceTime	 = (info.currentCadence != null) ? mCadenceTime+1 : mCadenceTime;
             mElapsedCadence= (info.currentCadence != null) ? mElapsedCadence + info.currentCadence : mElapsedCadence;
+
+	        //! Calculate vertical speed
+    	    valueDesc = (info.totalDescent != null) ? info.totalDescent : 0;
+        	Diff1 = valueDesc - valueDesclast;
+	        valueDesc = (unitD == 1609.344) ? valueDesc*3.2808 : valueDesc;
+    	    valueAsc = (info.totalAscent != null) ? info.totalAscent : 0;
+        	Diff2 = valueAsc - valueAsclast;        
+	        valueAsc = (unitD == 1609.344) ? valueAsc*3.2808 : valueAsc;
+    	    valueDesclast = valueDesc;
+        	valueAsclast = valueAsc;
+	        CurrentVertSpeedinmpersec = Diff2-Diff1;
+    	    for (i = 1; i < 11; ++i) {
+	    	    if (metric[i] == 67 or metric[i] == 108) {
+					for (var j = 1; j < 30; ++j) {			
+						VertPace[31-j] = VertPace[30-j];
+					}
+					VertPace[1]	= CurrentVertSpeedinmpersec;
+					for (var j = 1; j < 31; ++j) {
+						totalVertPace = VertPace[j] + totalVertPace;
+					}
+					if (jTimertime>0) {		
+						AverageVertspeedinmper30sec= (jTimertime<31) ? totalVertPace/jTimertime : totalVertPace/30;
+						totalVertPace = 0;
+					}
+				}
+			}
+
 
 			//! Calculate temperature compensation, B-variables reference cell number from cells of conversion excelsheet  		
             var B6 = 22; 			//! is cell B6
@@ -160,29 +226,29 @@ class CiqView extends ExtramemView {
             			uFTPTemp = 18;
             			B6 = 18;  
             		} else if (uPwrTempcorrect == 1 and uPwrHumidcorrect == 0 and uPwrAlticorrect == 0) {
-            			B6 = tempeTemp ;  
+            			B6 = (utempunits == false) ? tempeTemp : tempeTemp + utempcalibration/1.8 ;  
 	            		uFTPHumid = 70;
     	        		uRealHumid = 70;
         	    		uFTPAltitude = 200;
             			uRealAltitude =	200;
             		} else if (uPwrTempcorrect == 1 and uPwrHumidcorrect == 0 and uPwrAlticorrect == 1) {
-            			B6 = tempeTemp ;  
+            			B6 = (utempunits == false) ? tempeTemp : tempeTemp + utempcalibration/1.8 ;  
 	            		uFTPHumid = 70;
     	        		uRealHumid = 70;
     	        		uRealAltitude =	(info.altitude != null) ? info.altitude : 0;
             		} else if (uPwrTempcorrect == 1 and uPwrHumidcorrect == 0 and uPwrAlticorrect == 2) {
-            			B6 = tempeTemp ;  
+            			B6 = (utempunits == false) ? tempeTemp : tempeTemp + utempcalibration/1.8 ;  
 	            		uFTPHumid = 70;
     	        		uRealHumid = 70;
             		} else if (uPwrTempcorrect == 1 and uPwrHumidcorrect == 2 and uPwrAlticorrect == 0) {
-            			B6 = tempeTemp ;  
+            			B6 = (utempunits == false) ? tempeTemp : tempeTemp + utempcalibration/1.8 ;  
         	    		uFTPAltitude = 200;
             			uRealAltitude =	200;
             		} else if (uPwrTempcorrect == 1 and uPwrHumidcorrect == 2 and uPwrAlticorrect == 1) {
-            			B6 = tempeTemp ;
+            			B6 = (utempunits == false) ? tempeTemp : tempeTemp + utempcalibration/1.8 ;
             			uRealAltitude =	(info.altitude != null) ? info.altitude : 0;  
             		} else if (uPwrTempcorrect == 1 and uPwrHumidcorrect == 2 and uPwrAlticorrect == 2) {
-            			B6 = tempeTemp ;  
+            			B6 = (utempunits == false) ? tempeTemp : tempeTemp + utempcalibration/1.8 ;  
             		} else if (uPwrTempcorrect == 2 and uPwrHumidcorrect == 0 and uPwrAlticorrect == 0) {
             			B6 = uManTemp;  
 	            		uFTPHumid = 70;
@@ -250,7 +316,115 @@ class CiqView extends ExtramemView {
 				} else {
 					RSS = RSS + + 0.03 * Math.pow(((runPower+0.001)/uCP),3.5);
 				}
-			}				
+			}
+			
+			if (dynamics != null) {
+	 		    var data = dynamics.getRunningDynamics(); 
+	 		    if (data != null) {
+	    			groundContactBalance = data.groundContactBalance;
+    				groundContactTime = data.groundContactTime;  
+    				stanceTime = data.stanceTime;
+    				stepLength = data.stepLength;
+    				verticalOscillation = data.verticalOscillation;
+    				verticalRatio = data.verticalRatio;
+    			} else {
+    				groundContactBalance = 0;
+    				groundContactTime = 0;  
+    				stanceTime = 0;
+    				stepLength = 0;
+    				verticalOscillation = 0;
+    				verticalRatio = 0;
+    			}
+    		} else {
+    			groundContactBalance = 0;
+   				groundContactTime = 0;  
+   				stanceTime = 0;
+   				stepLength = 0;
+   				verticalOscillation = 0;
+   				verticalRatio = 0;
+    		}
+    		
+    		for (i = 1; i < 11; ++i) {
+    			if (metric[i] == 109) {  
+    				rollgroundContactBalance[10] 								= rollgroundContactBalance[9];
+	        		rollgroundContactBalance[9] 								= rollgroundContactBalance[8];
+    	    		rollgroundContactBalance[8] 								= rollgroundContactBalance[7];
+        			rollgroundContactBalance[7] 								= rollgroundContactBalance[6];
+        			rollgroundContactBalance[6] 								= rollgroundContactBalance[5];
+        			rollgroundContactBalance[5] 								= rollgroundContactBalance[4];
+ 		       		rollgroundContactBalance[4] 								= rollgroundContactBalance[3];
+        			rollgroundContactBalance[3] 								= rollgroundContactBalance[2];
+        			rollgroundContactBalance[2] 								= rollgroundContactBalance[1];
+        			rollgroundContactBalance[1] 								= groundContactBalance;
+					AveragerollgroundContactBalance10sec	= (rollgroundContactBalance[1]+rollgroundContactBalance[2]+rollgroundContactBalance[3]+rollgroundContactBalance[4]+rollgroundContactBalance[5]+rollgroundContactBalance[6]+rollgroundContactBalance[7]+rollgroundContactBalance[8]+rollgroundContactBalance[9]+rollgroundContactBalance[10])/10;
+    			}
+    			if (metric[i] == 110) {
+    				rollgroundContactTime[10] 						= rollgroundContactTime[9];
+	        		rollgroundContactTime[9] 						= rollgroundContactTime[8];
+    	    		rollgroundContactTime[8] 						= rollgroundContactTime[7];
+        			rollgroundContactTime[7] 						= rollgroundContactTime[6];
+        			rollgroundContactTime[6] 						= rollgroundContactTime[5];
+        			rollgroundContactTime[5] 						= rollgroundContactTime[4];
+ 		       		rollgroundContactTime[4] 						= rollgroundContactTime[3];
+        			rollgroundContactTime[3] 						= rollgroundContactTime[2];
+        			rollgroundContactTime[2] 						= rollgroundContactTime[1];
+        			rollgroundContactTime[1] 						= groundContactTime;
+					AveragerollgroundContactTime10sec	= (rollgroundContactTime[1]+rollgroundContactTime[2]+rollgroundContactTime[3]+rollgroundContactTime[4]+rollgroundContactTime[5]+rollgroundContactTime[6]+rollgroundContactTime[7]+rollgroundContactTime[8]+rollgroundContactTime[9]+rollgroundContactTime[10])/10;	
+    			}
+    			if (metric[i] == 111) {
+    				rollstanceTime[10] 								= rollstanceTime[9];
+	        		rollstanceTime[9] 								= rollstanceTime[8];
+    	    		rollstanceTime[8] 								= rollstanceTime[7];
+        			rollstanceTime[7] 								= rollstanceTime[6];
+        			rollstanceTime[6] 								= rollstanceTime[5];
+        			rollstanceTime[5] 								= rollstanceTime[4];
+ 		       		rollstanceTime[4] 								= rollstanceTime[3];
+        			rollstanceTime[3] 								= rollstanceTime[2];
+        			rollstanceTime[2] 								= rollstanceTime[1];
+        			rollstanceTime[1] 								= stanceTime;
+					AveragerollstanceTime10sec	= (rollstanceTime[1]+rollstanceTime[2]+rollstanceTime[3]+rollstanceTime[4]+rollstanceTime[5]+rollstanceTime[6]+rollstanceTime[7]+rollstanceTime[8]+rollstanceTime[9]+rollstanceTime[10])/10;
+    			}
+    			if (metric[i] == 113) {
+    				rollstepLength[10] 								= rollstepLength[9];
+	        		rollstepLength[9] 								= rollstepLength[8];
+    	    		rollstepLength[8] 								= rollstepLength[7];
+        			rollstepLength[7] 								= rollstepLength[6];
+        			rollstepLength[6] 								= rollstepLength[5];
+        			rollstepLength[5] 								= rollstepLength[4];
+ 		       		rollstepLength[4] 								= rollstepLength[3];
+        			rollstepLength[3] 								= rollstepLength[2];
+        			rollstepLength[2] 								= rollstepLength[1];
+        			rollstepLength[1] 								= stepLength;
+					AveragerollstepLength10sec	= (rollstepLength[1]+rollstepLength[2]+rollstepLength[3]+rollstepLength[4]+rollstepLength[5]+rollstepLength[6]+rollstepLength[7]+rollstepLength[8]+rollstepLength[9]+rollstepLength[10])/10; 
+    			}
+    			if (metric[i] == 114) { 
+    				rollverticalOscillation[10] 					= rollverticalOscillation[9];
+	        		rollverticalOscillation[9] 						= rollverticalOscillation[8];
+    	    		rollverticalOscillation[8] 						= rollverticalOscillation[7];
+        			rollverticalOscillation[7] 						= rollverticalOscillation[6];
+        			rollverticalOscillation[6] 						= rollverticalOscillation[5];
+        			rollverticalOscillation[5] 						= rollverticalOscillation[4];
+ 		       		rollverticalOscillation[4] 						= rollverticalOscillation[3];
+        			rollverticalOscillation[3] 						= rollverticalOscillation[2];
+        			rollverticalOscillation[2] 						= rollverticalOscillation[1];
+        			rollverticalOscillation[1] 						= verticalOscillation;
+					AveragerollverticalOscillation10sec	= (rollverticalOscillation[1]+rollverticalOscillation[2]+rollverticalOscillation[3]+rollverticalOscillation[4]+rollverticalOscillation[5]+rollverticalOscillation[6]+rollverticalOscillation[7]+rollverticalOscillation[8]+rollverticalOscillation[9]+rollverticalOscillation[10])/10;
+    			}
+    			if (metric[i] == 115) {
+    				rollverticalRatio[10] 							= rollverticalRatio[9];
+	        		rollverticalRatio[9] 							= rollverticalRatio[8];
+    	    		rollverticalRatio[8] 							= rollverticalRatio[7];
+        			rollverticalRatio[7] 							= rollverticalRatio[6];
+        			rollverticalRatio[6] 							= rollverticalRatio[5];
+        			rollverticalRatio[5] 							= rollverticalRatio[4];
+ 		       		rollverticalRatio[4] 							= rollverticalRatio[3];
+        			rollverticalRatio[3] 							= rollverticalRatio[2];
+        			rollverticalRatio[2] 							= rollverticalRatio[1];
+        			rollverticalRatio[1] 							= verticalRatio;
+					AveragerollverticalRatio10sec	= (rollverticalRatio[1]+rollverticalRatio[2]+rollverticalRatio[3]+rollverticalRatio[4]+rollverticalRatio[5]+rollverticalRatio[6]+rollverticalRatio[7]+rollverticalRatio[8]+rollverticalRatio[9]+rollverticalRatio[10])/10;
+				}
+    		}
+    						
         }
 	}
 
@@ -280,11 +454,6 @@ class CiqView extends ExtramemView {
         }
         if (currentPowertest > 0) {
             if (currentPowertest > 0) {
-				if (info.currentPower != null) {
-        			Power[1]								= runPower; 
-        		} else {
-        			Power[1]								= 0;
-				}
         		Power[10] 								= Power[9];
         		Power[9] 								= Power[8];
         		Power[8] 								= Power[7];
@@ -294,7 +463,12 @@ class CiqView extends ExtramemView {
         		Power[4] 								= Power[3];
         		Power[3] 								= Power[2];
         		Power[2] 								= Power[1];
-				AveragePower10sec	= (Power1+Power[2]+Power[3]+Power[4]+Power[5]+Power[6]+Power[7]+Power[8]+Power[9]+Power[10])/10;
+				if (info.currentPower != null) {
+        			Power[1]								= runPower; 
+        		} else {
+        			Power[1]								= 0;
+				}
+				AveragePower10sec	= (Power[1]+Power[2]+Power[3]+Power[4]+Power[5]+Power[6]+Power[7]+Power[8]+Power[9]+Power[10])/10;
 				AveragePower5sec	= (Power[1]+Power[2]+Power[3]+Power[4]+Power[5])/5;
 				AveragePower3sec	= (Power[1]+Power[2]+Power[3])/3;
 			}
@@ -651,18 +825,38 @@ class CiqView extends ExtramemView {
         		}
       			dc.drawText(xx, y, Garminfont, fTimer, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
       			dc.drawText(xl, yl, Labelfont,  fieldlabel, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-        } else {
-        	if ( counter == 3 or counter == 5 or counter == 6 or counter == 8) {
-        		if (uUpperMiddleRowBig == false) {
-        			dc.drawText(x, y, Garminfont, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-        			dc.drawText(xl, yl-labelFontOffset, Labelfont,  fieldlabel, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-        		} else {
-        			dc.drawText(x, y, Garminfontbig, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-        			dc.drawText(xl, yl, Labelfont,  fieldlabel.substring(0,1) , Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-       				dc.drawText(xl, yl+17, Labelfont,  fieldlabel.substring(1,2), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-       				dc.drawText(xl, yl+34, Labelfont,  fieldlabel.substring(2,3), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+        } else {      	
+       		if (uUpperMiddleRowBig == true and uLowerMiddleRowBig == true) {
+      			if ( counter == 3 or counter == 5 or counter == 6 or counter == 8) {
+	      			dc.drawText(x, y, Garminfontbig, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    	  			dc.drawText(xl, yl, Labelfont,  fieldlabel.substring(0,1) , Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   					dc.drawText(xl, yl+17, Labelfont,  fieldlabel.substring(1,2), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   					dc.drawText(xl, yl+34, Labelfont,  fieldlabel.substring(2,3), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   				} else {
+   					dc.drawText(x, y, Garminfont, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+       				dc.drawText(xl, yl-labelFontOffset, Labelfont,  fieldlabel, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
         		}
-	    	} else {	    	
+       		} else if (uUpperMiddleRowBig == true ) {
+      			if ( counter == 3 or counter == 5) {
+	      			dc.drawText(x, y, Garminfontbig, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    	  			dc.drawText(xl, yl, Labelfont,  fieldlabel.substring(0,1) , Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   					dc.drawText(xl, yl+17, Labelfont,  fieldlabel.substring(1,2), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   					dc.drawText(xl, yl+34, Labelfont,  fieldlabel.substring(2,3), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   				} else {
+   					dc.drawText(x, y, Garminfont, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+       				dc.drawText(xl, yl-labelFontOffset, Labelfont,  fieldlabel, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+        		}
+   			} else if (uLowerMiddleRowBig == true) {
+   				if ( counter == 6 or counter == 8) {
+   					dc.drawText(x, y, Garminfontbig, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+    	  			dc.drawText(xl, yl, Labelfont,  fieldlabel.substring(0,1) , Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   					dc.drawText(xl, yl+17, Labelfont,  fieldlabel.substring(1,2), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   					dc.drawText(xl, yl+34, Labelfont,  fieldlabel.substring(2,3), Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+   				} else {	    	
+       				dc.drawText(x, y, Garminfont, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+       				dc.drawText(xl, yl-labelFontOffset, Labelfont,  fieldlabel, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+       			}
+       		} else {
        			dc.drawText(x, y, Garminfont, fieldvalue, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
        			dc.drawText(xl, yl-labelFontOffset, Labelfont,  fieldlabel, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
        		}

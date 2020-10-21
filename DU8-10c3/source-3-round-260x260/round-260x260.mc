@@ -64,9 +64,17 @@ class DeviceView extends PowerView {
 
 		for (var i = 1; i < 11; ++i) {
 	    	if ( i == 1 ) {			//!upper row, left
-	    		Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,063,081,028,067,079,037");
+	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,063,088,021,067,079,037");
+	    		} else {
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,063,081,028,067,079,037");
+	    		}
 	       	} else if ( i == 2 ) {	//!upper row, right
-	    		Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,063,192,138,067,181,037");
+	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,063,199,131,067,181,037");
+	    		} else {
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,063,192,138,067,181,037");
+	    		}
 	       	} else if ( i == 3 ) {  //!middle row, left
 	    		if (uUpperMiddleRowBig == false) {
 	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"039,115,000,000,000,039,089");
@@ -100,9 +108,17 @@ class DeviceView extends PowerView {
 	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,158,000,000,000,244,142");
 	    		}
 	       	} else if ( i == 9 ) {	//!lower row, left
-	    		Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,203,089,036,206,087,229");
+	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,203,096,029,206,087,229");
+	    		} else {
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,203,089,036,206,087,229");
+	    		}
 	       	} else if ( i == 10 ) {	//!lower row, right
-	    		Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,203,186,133,206,170,229");
+	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,203,193,126,206,170,229");
+	    		} else {
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,203,186,133,206,170,229");
+	    		}
        		}       	
 		}
 		
@@ -131,10 +147,12 @@ class DeviceView extends PowerView {
 		dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
 
 		if (licenseOK == true) {
-      		dc.drawText(130, 40, Graphics.FONT_XTINY, "Datarun ultim c3", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+      		dc.drawText(130, 40, Graphics.FONT_XTINY, "Datarun ultim c0", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(130, 120, Graphics.FONT_TINY, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(81, 160, Graphics.FONT_XTINY, "License code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(180, 160, Graphics.FONT_MEDIUM, mtest, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+			dc.drawText(81, 190, Graphics.FONT_XTINY, "C-Code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+			dc.drawText(170, 190, Graphics.FONT_MEDIUM, CCode, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 		} else {
       		dc.drawText(130, 33, Graphics.FONT_XTINY, "License needed !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
       		dc.drawText(130, 63, Graphics.FONT_XTINY, "Run is recorded though", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
