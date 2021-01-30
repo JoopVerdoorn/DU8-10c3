@@ -137,6 +137,8 @@ class DatarunpremiumView extends Ui.DataField {
          var uCCnumber	     = mApp.getProperty("pCCnumber");
    
         
+ 
+
           	 
         if (System.getDeviceSettings().paceUnits == System.UNIT_STATUTE) {
             unitP = 1609.344;
@@ -161,7 +163,7 @@ class DatarunpremiumView extends Ui.DataField {
 		CCode = CCode*hashfunction((uHrZones[2]*uHrZones[4]+uHrZones[1]+uHrZones[3]).toString())-4331;
         CCode = (CCode > 0) ? CCode : -CCode; 
         CCode = CCode % 346421 + 53263;   
-        licenseOK = (umyNumber == mtest or CCode == uCCnumber) ? true : false;     
+        licenseOK = (umyNumber == mtest or CCode == uCCnumber) ? true : false;   
     }
     
     //!! this is called whenever the screen needs to be updated
@@ -193,26 +195,15 @@ class DatarunpremiumView extends Ui.DataField {
             mLastLapSpeed = mLastLapElapsedDistance / mLastLapTimerTime;
         }
 
-		//! Calculate average speed
-        CurrentSpeedinmpersec = 0;
-        if (info.currentSpeed != null) {
-        	CurrentSpeedinmpersec = info.currentSpeed; 
-        }
+		//! Calculate average speed over 5 sec
+        CurrentSpeedinmpersec = (info.currentSpeed != null) ? info.currentSpeed : 0;
         if (CurrentSpeedinmpersec > 0) {
             	//! Calculate average pace
-				if (info.currentSpeed != null) {
         		Pace5 								= Pace4;
         		Pace4 								= Pace3;
         		Pace3 								= Pace2;
         		Pace2 								= Pace1;
-        		Pace1								= info.currentSpeed; 
-        		} else {
-					Pace5 								= Pace4;
-    	    		Pace4 								= Pace3;
-        			Pace3 								= Pace2;
-        			Pace2 								= Pace1;
-        			Pace1								= 0;
-				}
+        		Pace1								= CurrentSpeedinmpersec; 
 				Averagespeedinmper5sec= (Pace1+Pace2+Pace3+Pace4+Pace5)/5;
 				Averagespeedinmper3sec= (uRoundedPace) ? unitP/(Math.round( (unitP/(Pace1+Pace2+Pace3)*3) / 5 ) * 5) : (Pace1+Pace2+Pace3)/3;
 				CurrentSpeedinmpersec= (uRoundedPace) ? unitP/(Math.round( unitP/CurrentSpeedinmpersec / 5 ) * 5) : CurrentSpeedinmpersec;

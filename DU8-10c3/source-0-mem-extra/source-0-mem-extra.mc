@@ -94,7 +94,7 @@ class ExtramemView extends DatarunpremiumView {
 		hrRest = stringOrNumber(hrRest);
 		
 		var mApp 		 					= Application.getApp();
-		uClockFieldMetric 					= mApp.getProperty("pClockFieldMetric");
+		uClockFieldMetric 					= 55;
 		rolavPacmaxsecs  					= mApp.getProperty("prolavPacmaxsecs");
 		uBlackBackground    				= mApp.getProperty("pBlackBackground");
 		uGarminColors						= mApp.getProperty("pGarminColors");
@@ -464,10 +464,6 @@ class ExtramemView extends DatarunpremiumView {
 	            CFMValue = Averagespeedinmpersec;
     	        CFMLabel = "Pc ..sec";
         	    CFMFormat = "pace";            	
-			} else if (uClockFieldMetric == 55) {   
-            	CFMValue = (info.currentSpeed != null or info.currentSpeed!=0) ? 100/info.currentSpeed : 0;
-            	CFMLabel = "s/100m";
-        	    CFMFormat = "2decimal";
 	        } else if (uClockFieldMetric == 28) {
     	        CFMValue = LapEfficiencyFactor;
         	    CFMLabel = "Lap EF";
