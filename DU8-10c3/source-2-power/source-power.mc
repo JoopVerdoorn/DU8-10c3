@@ -16,10 +16,13 @@ class PowerView extends CiqView {
     var Power2 									= 0;
     var Power3 									= 0;
 	var vibrateseconds 							= 0;  
-	hidden var uLapPwr4alerts 					= false;
+	hidden var uLapPwr4alerts 					= 0;
 	hidden var runPower							= 0;
 	var overruleWourkout						= false;
-
+	hidden var mPowerWarningunder				= 0;
+    hidden var mPowerWarningupper 				= 999;
+	hidden var mPowerWarningunderhelper			= 0;   // waarom nodig?
+	hidden var mPowerWarningupperhelper			= 999;  // waarom nodig?
     
     function initialize() {
         CiqView.initialize();
@@ -63,33 +66,12 @@ class PowerView extends CiqView {
 		LapPower = (mLapTimerTimePwr != 0) ? Math.round(mLapElapsedPower/mLapTimerTimePwr) : 0; 	
 		LastLapPower = (mLastLapTimerTimePwr != 0) ? Math.round(mLastLapElapsedPower/mLastLapTimerTimePwr) : 0;
 
-		//!Calculate average power
-        var AveragePower3sec  	 			= 0;
-        var currentPowertest				= 0;
-		if (info.currentSpeed != null && info.currentPower != null) {
-        	currentPowertest = runPower; 
-        }
-        if (currentPowertest > 0) {
-            if (currentPowertest > 0) {
-            	//! Calculate average power
-        		Power3 								= Power2;
-        		Power2 								= Power1;
-				if (info.currentPower != null) {
-        			Power1								= runPower; 
-        		} else {
-        			Power1								= 0;
-				}
-				AveragePower3sec= (Power1+Power2+Power3)/3;
-			}
- 		}
-
 		//! Alert when out of predefined powerzone
-		//!Calculate power metrics
         var mPowerWarningunder = uRequiredPower.substring(0, 3);
         var mPowerWarningupper = uRequiredPower.substring(4, 7);
         mPowerWarningunder = mPowerWarningunder.toNumber();
         mPowerWarningupper = mPowerWarningupper.toNumber();
-        
+          
         if (Activity has :getCurrentWorkoutStep and overruleWourkout == false) {
         	if (WorkoutStepHighBoundary > 0) {
         		mPowerWarningunder = WorkoutStepLowBoundary;
@@ -99,24 +81,37 @@ class PowerView extends CiqView {
        			mPowerWarningupper = 999;
        		}
         }
-         
+
+		// Waarom nodig?
+		mPowerWarningunderhelper = mPowerWarningunder;
+		mPowerWarningupperhelper = mPowerWarningupper;
+           
 		var vibrateData = [
 			new Attention.VibeProfile( 100, 200 )
 		];
 		
 		var runalertPower = 0;
-		if ( uLapPwr4alerts == true ) {
-	    	runalertPower 	 = LapPower;
-	    } else {
+		if ( uLapPwr4alerts == 0 ) {
+	    	runalertPower 	 = runPower;
+	    } else if ( uLapPwr4alerts == 1 ) {
 	    	runalertPower 	 = AveragePower3sec;
+		} else if ( uLapPwr4alerts == 2 ) {
+	    	runalertPower 	 = AveragePower5sec;
+		} else if ( uLapPwr4alerts == 3 ) {
+	    	runalertPower 	 = AveragePower10sec;
+		} else if ( uLapPwr4alerts == 4 ) {
+	    	runalertPower 	 = Averagepowerpersec;
+		} else if ( uLapPwr4alerts == 5 ) {
+	    	runalertPower 	 = LapPower;
+		} else if ( uLapPwr4alerts == 6 ) {
+	    	runalertPower 	 = AveragePower;
 		}
-		PowerWarning = 0;
+		
 		if (jTimertime != 0) {
 		  if (runalertPower>mPowerWarningupper or runalertPower<mPowerWarningunder) {	 
 			 if (Toybox.Attention has :vibrate && uNoAlerts == false) {
 			 	vibrateseconds = vibrateseconds + 1;	 		  			
     			if (runalertPower>mPowerWarningupper) {
-    				PowerWarning = 1;
     				if (vibrateseconds == uWarningFreq) {
     					Toybox.Attention.vibrate(vibrateData);
     					if (uAlertbeep == true) {
@@ -126,9 +121,7 @@ class PowerView extends CiqView {
     					vibrateseconds = 0;
     				}
     			} else if (runalertPower<mPowerWarningunder){
-    				PowerWarning = 2;
-    				if (vibrateseconds == uWarningFreq) {
-    					
+    				if (vibrateseconds == uWarningFreq) {    					
     						if (uAlertbeep == true) {
     							Attention.playTone(Attention.TONE_ALERT_LO);
     						}
