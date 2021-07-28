@@ -1,3 +1,4 @@
+using Toybox.System as Sys;
 using Toybox.SensorHistory;
 using Toybox.Lang;
 using Toybox.System;
@@ -248,7 +249,7 @@ class ExtramemView extends DatarunpremiumView {
         	} else if (metric[i] == 54) {
     	        fieldValue[i] = (info.trainingEffect != null) ? info.trainingEffect : 0;
         	    fieldLabel[i] = "T effect";
-            	fieldFormat[i] = "2decimal";           	
+            	fieldFormat[i] = "1decimal";           	
 			} else if (metric[i] == 52) {
            		fieldValue[i] = valueAsc;
             	fieldLabel[i] = "EL gain";
@@ -323,9 +324,13 @@ class ExtramemView extends DatarunpremiumView {
 	            fieldValue[i] = (utempunits == false) ? fieldValue[i]+utempcalibration : fieldValue[i]*1.8+32+utempcalibration;
     	        fieldLabel[i] = "Tempe T";
         	    fieldFormat[i] = "1decimal";
+        	} else if (metric[i] == 124) {
+           		fieldValue[i] = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*60 : AverageVertspeedinmper30sec*60;
+            	fieldLabel[i] = "VAM-min";
+            	fieldFormat[i] = "0decimal";
         	} else if (metric[i] == 108) {
            		fieldValue[i] = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*3600 : AverageVertspeedinmper30sec*3600;
-            	fieldLabel[i] = "VAM";
+            	fieldLabel[i] = "VAM-hour";
             	fieldFormat[i] = "0decimal";
 			} else if (metric[i] == 109) {			
 				fieldValue[i] = AveragerollgroundContactBalance10sec;
@@ -359,6 +364,23 @@ class ExtramemView extends DatarunpremiumView {
 				fieldValue[i] = fieldValue[i] - elapsTcorr;
 				fieldLabel[i] = "ElapsT";
             	fieldFormat[i] = "time";
+            } else if (metric[i] == 123) {			
+				var stats = Sys.getSystemStats();
+				fieldValue[i] = stats.battery;
+				fieldLabel[i] = "Battery";
+				if (ZoltanRequest.equals("z" ) == true) {
+					fieldFormat[i] = "1decimal";
+				} else {
+            		fieldFormat[i] = "0decimal";
+            	}
+            } else if (metric[i] == 125) {
+            	if (jTimertime > 0) {
+           			fieldValue[i] = (unitD == 1609.344) ? TotalVertSpeedinmpersec*3.2808*3600/jTimertime : TotalVertSpeedinmpersec*3600/jTimertime;
+           		} else {
+           			fieldValue[i] = 0;
+           		}
+            	fieldLabel[i] = "Avg-VAM";
+            	fieldFormat[i] = "0decimal";
             }
 		}
 
@@ -528,6 +550,9 @@ class ExtramemView extends DatarunpremiumView {
 	            	CFMValue = (uOnlyPwrCorrFactor == false) ? uPowerTarget : uPowerTarget/PwrCorrFactor;
 	            }
         	    CFMFormat = "power";
+        	}  else if (uClockFieldMetric == 124) {
+           		CFMValue = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*60 : AverageVertspeedinmper30sec*60;
+            	CFMFormat = "0decimal";
         	}  else if (uClockFieldMetric == 108) {
            		CFMValue = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*3600 : AverageVertspeedinmper30sec*3600;
             	CFMFormat = "0decimal";
@@ -572,7 +597,14 @@ class ExtramemView extends DatarunpremiumView {
         			CFMValue = 0;
         	    	CFMFormat = "0decimal";
         		}
-			}		 
+			} else if (uClockFieldMetric == 125) {
+	        	if (jTimertime > 0) {
+    	       			CFMValue = (unitD == 1609.344) ? TotalVertSpeedinmpersec*3.2808*3600/jTimertime : TotalVertSpeedinmpersec*3600/jTimertime;
+        	   		} else {
+           				CFMValue = 0;
+           			}
+           		CFMFormat = "0decimal";
+           	}		 
 
 		//! Conditions for showing the demoscreen       
         if (uShowDemo == false) {
@@ -586,7 +618,7 @@ class ExtramemView extends DatarunpremiumView {
 
 		//! Display colored labels on screen	
 		if (mySettings.screenWidth == 260 and mySettings.screenHeight == 260) {  //! Fenix 6 pro labels
-			for (var i = 1; i < 11; ++i) {
+			for (i = 1; i < 11; ++i) {
 			   	if ( i == 1 ) {			//!upper row, left    	
 	    			if (disablelabel1 == false) {
 	    				Coloring(dc,i,fieldValue[i],"020,031,108,015");
@@ -650,7 +682,7 @@ class ExtramemView extends DatarunpremiumView {
 	    		}	
 	    	}			
 		} else if (mySettings.screenWidth == 280 and mySettings.screenHeight == 280) {     //! Fenix 6x pro labels	
-			for (var i = 1; i < 11; ++i) {
+			for (i = 1; i < 11; ++i) {
 			   	if ( i == 1 ) {			//!upper row, left    	
 	    			if (disablelabel1 == false) {
 	    				Coloring(dc,i,fieldValue[i],"021,034,117,016");
@@ -714,7 +746,7 @@ class ExtramemView extends DatarunpremiumView {
 	    		}
 	    	}
 		} else {
-			for (var i = 1; i < 11; ++i) {
+			for (i = 1; i < 11; ++i) {
 			   	if ( i == 1 ) {			//!upper row, left    	
 	    			if (disablelabel1 == false) {
 	    				Coloring(dc,i,fieldValue[i],"018,029,100,014");

@@ -83,7 +83,7 @@ class DatarunpremiumView extends Ui.DataField {
     hidden var uRacedistance                = 42195;
     hidden var uRacetime					= "03:59:48";
 	hidden var mRacetime  					= 0;
-	var mETA								= 0;
+	hidden var mETA								= 0;
 	var uETAfromLap 						= true;	
     hidden var mLastLapDistMarker           = 0;
     hidden var mLastLapTimeMarker           = 0;
@@ -136,7 +136,8 @@ class DatarunpremiumView extends Ui.DataField {
          uETAfromLap		 = mApp.getProperty("pETAfromLap");
          var uHrZones = UserProfile.getHeartRateZones(UserProfile.getCurrentSport());
          uShowRedClock = mApp.getProperty("pShowRedClock");
-   		 var uCCnumber	     = mApp.getProperty("pCCnumber");
+         var uCCnumber	     = mApp.getProperty("pCCnumber");
+   
         
  
 
@@ -300,8 +301,8 @@ class DatarunpremiumView extends Ui.DataField {
         		fieldFormat[i] = "pace";
         		if (info.elapsedDistance != null and mRacetime != jTimertime and mRacetime > jTimertime) {
         			fieldValue[i] = (uRacedistance - info.elapsedDistance) / (mRacetime - jTimertime);
-        		} else {
-        				fieldValue[i] = uRacedistance / mRacetime;
+        		}  else {
+        			fieldValue[i] = uRacedistance / mRacetime;
         		} 
 	        } else if (metric[i] == 14) {
     	        fieldValue[i] = Math.round(mETA).toNumber();
