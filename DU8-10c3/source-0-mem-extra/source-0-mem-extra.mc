@@ -22,9 +22,13 @@ class ExtramemView extends DatarunpremiumView {
 	var HRzone								= 0;
 	hidden var Powerzone					= 0;
 	var totalVertPace 						= 0;
+	var totalDiff2							= 0;
 	hidden var VertPace		 				= new [33];
-	var AverageVertspeedinmper30sec			= 0;
+	hidden var Diffasc2		 				= new [33];
+	hidden var AverageVertspeedinmper30sec	= 0;
+	hidden var totalAscent30sec				= 0;
 	var CurrentVertSpeedinmpersec 			= 0; 
+	hidden var totalAscSeconds 			    = 0;
 	var uGarminColors 						= false;
 	var Z1color 							= Graphics.COLOR_LT_GRAY;
 	var Z2color 							= Graphics.COLOR_YELLOW;
@@ -63,7 +67,6 @@ class ExtramemView extends DatarunpremiumView {
 	hidden var valueAsclast					= 0;
 	hidden var valueDesclast				= 0;
 	hidden var Diff1 						= 0;
-	hidden var Diff2 						= 0;
 	hidden var startTime;
 	hidden var groundContactBalance			= 0;
 	hidden var rollgroundContactBalance		= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -113,14 +116,13 @@ class ExtramemView extends DatarunpremiumView {
 		disablelabel9 						= mApp.getProperty("pdisablelabel9");
 		disablelabel10 						= mApp.getProperty("pdisablelabel10");
 		
-		startTime = Toybox.System.getClockTime();
-		
 		if(Toybox.AntPlus has :RunningDynamics) {
     		dynamics = new Toybox.AntPlus.RunningDynamics(null);
 		}
 		
 		for (var i = 1; i<33; ++i) {
 				VertPace[i] = 0; 
+				Diffasc2[i] = 0;
 		}
 		
 		for (i = 1; i < 11; ++i) {
@@ -160,34 +162,8 @@ class ExtramemView extends DatarunpremiumView {
 		LapCadence 				= (mLapTimerTimeCadence != 0) ? Math.round(mLapElapsedCadence/mLapTimerTimeCadence) : 0; 					
 		LastLapCadence			= (mLastLapTimerTime != 0) ? Math.round(mLastLapElapsedCadence/mLastLapTimerTime) : 0;
 
-       
-		//! Calculation of rolling average of pace
-		var info = Activity.getActivityInfo();
-		var zeroValueSecs = 0;
-
-		if (counterPace < 1) {
-			for (var i = 1; i < rolavPacmaxsecs+2; ++i) {
-				rollingPaceValue [i] = 0; 
-			}
-		}
-		counterPace = counterPace + 1;
-		rollingPaceValue [rolavPacmaxsecs+1] = (info.currentSpeed != null) ? info.currentSpeed : 0;
-		for (var i = 1; i < rolavPacmaxsecs+1; ++i) {
-			rollingPaceValue [i] = rollingPaceValue [i+1];
-		}
-		for (var i = 1; i < rolavPacmaxsecs+1; ++i) {
-			totalRPa = rollingPaceValue [i] + totalRPa;
-			if (mHeartrateTime < rolavPacmaxsecs) {
-				zeroValueSecs = (rollingPaceValue[i] != 0) ? zeroValueSecs : zeroValueSecs + 1;
-			}
-		}
-		if (rolavPacmaxsecs-zeroValueSecs == 0) {
-			Averagespeedinmpersec = 0;
-		} else {
-			Averagespeedinmpersec = (mHeartrateTime < rolavPacmaxsecs) ? totalRPa/(rolavPacmaxsecs-zeroValueSecs) : totalRPa/rolavPacmaxsecs;
-		}
-		totalRPa = 0;
-
+ 		//!Calculate EF
+ 		var info = Activity.getActivityInfo();
 		var CurrentEfficiencyFactor		= (info.currentHeartRate != null && info.currentHeartRate != 0) ? mLapSpeed*60/info.currentHeartRate : 0;
 		var AverageEfficiencyFactor   	= (info.averageSpeed != null && AverageHeartrate != 0) ? info.averageSpeed*60/AverageHeartrate : 0; 
 		var LapEfficiencyFactor   		= (LapHeartrate != 0) ? mLapSpeed*60/LapHeartrate : 0;
@@ -202,9 +178,14 @@ class ExtramemView extends DatarunpremiumView {
         mRacesec = mRacesec.toNumber();
         mRacetime = mRacehour*3600 + mRacemin*60 + mRacesec;
 
+		//! Get number of steps of today
+		var info2;
+		var steps = 0;
+		if (Toybox has :ActivityMonitor){
+			info2 = ActivityMonitor.getInfo();
+			steps = info2.steps;
+		}
 
-
-	
 		//! Options for metrics
 		var sensorIter = getIterator();
 		maxHR = uHrZones[5];
@@ -251,11 +232,13 @@ class ExtramemView extends DatarunpremiumView {
         	    fieldLabel[i] = "T effect";
             	fieldFormat[i] = "1decimal";           	
 			} else if (metric[i] == 52) {
-           		fieldValue[i] = valueAsc;
+           		fieldValue[i] = (info.totalAscent != null) ? info.totalAscent : 0;
+           		fieldValue[i] = (unitD == 1609.344) ? Math.round(fieldValue[i]*3.2808) : Math.round(fieldValue[i]);
             	fieldLabel[i] = "EL gain";
             	fieldFormat[i] = "0decimal";
         	}  else if (metric[i] == 53) {
-           		fieldValue[i] = valueDesc;
+           		fieldValue[i] = (info.totalDescent != null) ? info.totalDescent : 0;
+           		fieldValue[i] = (unitD == 1609.344) ? Math.round(fieldValue[i]*3.2808) : Math.round(fieldValue[i]);
             	fieldLabel[i] = "EL loss";
             	fieldFormat[i] = "0decimal";                 	     	
         	}  else if (metric[i] == 61) {
@@ -272,7 +255,7 @@ class ExtramemView extends DatarunpremiumView {
             	fieldFormat[i] = "1decimal";           	
         	}  else if (metric[i] == 67) {
            		fieldValue[i] = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808 : AverageVertspeedinmper30sec;
-            	fieldLabel[i] = "V speed";
+            	fieldLabel[i] = "Vspeed-s";
             	fieldFormat[i] = "1decimal";
 			} else if (metric[i] == 83) {
             	fieldValue[i] = (maxHR != 0) ? currentHR*100/maxHR : 0;
@@ -326,11 +309,11 @@ class ExtramemView extends DatarunpremiumView {
         	    fieldFormat[i] = "1decimal";
         	} else if (metric[i] == 124) {
            		fieldValue[i] = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*60 : AverageVertspeedinmper30sec*60;
-            	fieldLabel[i] = "VAM-min";
-            	fieldFormat[i] = "0decimal";
+            	fieldLabel[i] = "Vspeed-m";        	
+            	fieldFormat[i] = "1decimal";
         	} else if (metric[i] == 108) {
            		fieldValue[i] = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*3600 : AverageVertspeedinmper30sec*3600;
-            	fieldLabel[i] = "VAM-hour";
+            	fieldLabel[i] = "Vspeed-h";
             	fieldFormat[i] = "0decimal";
 			} else if (metric[i] == 109) {			
 				fieldValue[i] = AveragerollgroundContactBalance10sec;
@@ -359,9 +342,7 @@ class ExtramemView extends DatarunpremiumView {
             	fieldFormat[i] = "1decimal";
             } else if (metric[i] == 116) {			
 				var myTime = Toybox.System.getClockTime();
-				fieldValue[i] = (jTimertime == 0) ? 0 : (myTime.hour.toNumber()*3600 + myTime.min.toNumber()*60 + myTime.sec.toNumber()) - (startTime.hour.toNumber()*3600 + startTime.min.toNumber()*60 + startTime.sec.toNumber());
-				var elapsTcorr = (jTimertime == 5 and info.timerTime != null) ? (fieldValue[i] - info.timerTime/1000) : 0;
-				fieldValue[i] = fieldValue[i] - elapsTcorr;
+				fieldValue[i] = (jTimertime == 0) ? 0 : (1+myTime.hour.toNumber()*3600 + myTime.min.toNumber()*60 + myTime.sec.toNumber()) - (startTime.hour.toNumber()*3600 + startTime.min.toNumber()*60 + startTime.sec.toNumber());
 				fieldLabel[i] = "ElapsT";
             	fieldFormat[i] = "time";
             } else if (metric[i] == 123) {			
@@ -374,25 +355,36 @@ class ExtramemView extends DatarunpremiumView {
             		fieldFormat[i] = "0decimal";
             	}
             } else if (metric[i] == 125) {
-            	if (jTimertime > 0) {
-           			fieldValue[i] = (info.totalAscent != null) ? info.totalAscent*60/jTimertime : 0;
-           			fieldValue[i] = (unitD == 1609.344) ? fieldValue[i]*3.2808 : fieldValue[i];
+            	if (totalAscSeconds > 0) {
+           			fieldValue[i] = (info.totalAscent != null) ? info.totalAscent*60/totalAscSeconds : 0;
+           			fieldValue[i] = (unitD == 1609.344) ? Math.round(fieldValue[i]*3.2808) : Math.round(fieldValue[i]);
            		} else {
            			fieldValue[i] = 0;
            		}
-System.println(info.totalAscent);
-            	fieldLabel[i] = "T-Asc-m";
-            	fieldFormat[i] = "0decimal";
+            	fieldLabel[i] = "Av-asc-m";
+            	fieldFormat[i] = "1decimal";
             } else if (metric[i] == 126) {
-            	if (jTimertime > 0) {
-           			fieldValue[i] = (info.totalAscent != null) ? info.totalAscent*3600/jTimertime : 0;
-           			fieldValue[i] = (unitD == 1609.344) ? fieldValue[i]*3.2808 : fieldValue[i];
+            	if (totalAscSeconds > 0) {
+           			fieldValue[i] = (info.totalAscent != null) ? info.totalAscent*3600/totalAscSeconds : 0;
+           			fieldValue[i] = (unitD == 1609.344) ? Math.round(fieldValue[i]*3.2808) : Math.round(fieldValue[i]);
            		} else {
            			fieldValue[i] = 0;
            		}
-            	fieldLabel[i] = "T-Asc-h";
+            	fieldLabel[i] = "Av-asc-h";
             	fieldFormat[i] = "0decimal";
-            }
+            } else if (metric[i] == 127) {
+	        	fieldValue[i] = (Toybox has :ActivityMonitor) ? steps : 0;
+    	       	fieldLabel[i] = "Day steps";
+    	       	fieldFormat[i] = "0decimal";
+    	    } else if (metric[i] == 128) {
+           		fieldValue[i] = (unitD == 1609.344) ? totalAscent30sec*3.2808*60 : totalAscent30sec*60;
+            	fieldLabel[i] = "VAM-min";        	
+            	fieldFormat[i] = "1decimal";
+        	} else if (metric[i] == 129) {
+           		fieldValue[i] = (unitD == 1609.344) ? totalAscent30sec*3.2808*3600 : totalAscent30sec*3600;
+            	fieldLabel[i] = "VAM-hour";
+            	fieldFormat[i] = "0decimal";
+			} 	
 		}
 
 		//!Choice for metric in Clockfield
@@ -488,11 +480,13 @@ System.println(info.totalAscent);
     	        CFMValue = (info.trainingEffect != null) ? info.trainingEffect : 0;
             	CFMFormat = "2decimal";           	
 			} else if (uClockFieldMetric == 52) {
-           		CFMValue = valueAsc;
+           		CFMValue = (info.totalAscent != null) ? info.totalAscent : 0;
+            	CFMValue = (unitD == 1609.344) ? Math.round(fieldValue[i]*3.2808) : Math.round(fieldValue[i]);
             	CFMFormat = "0decimal";
         	}  else if (uClockFieldMetric == 53) {
-           		CFMValue = valueDesc; 
-            	CFMFormat = "0decimal";           	
+           		CFMValue = (info.totalDescent != null) ? info.totalDescent : 0; 
+           		CFMValue = (unitD == 1609.344) ? Math.round(fieldValue[i]*3.2808) : Math.round(fieldValue[i]);
+            	CFMFormat = "0decimal";
         	}  else if (uClockFieldMetric == 61) {
            		CFMValue = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
             	CFMFormat = "0decimal";           	
@@ -563,7 +557,7 @@ System.println(info.totalAscent);
         	    CFMFormat = "power";
         	}  else if (uClockFieldMetric == 124) {
            		CFMValue = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*60 : AverageVertspeedinmper30sec*60;
-            	CFMFormat = "0decimal";
+            	CFMFormat = "1decimal";
         	}  else if (uClockFieldMetric == 108) {
            		CFMValue = (unitD == 1609.344) ? AverageVertspeedinmper30sec*3.2808*3600 : AverageVertspeedinmper30sec*3600;
             	CFMFormat = "0decimal";
@@ -610,23 +604,30 @@ System.println(info.totalAscent);
         		}
 			} else if (uClockFieldMetric == 125) {
 	        	if (jTimertime > 0) {
-    	       			CFMValue = (info.totalAscent != null) ? info.totalAscent*60/jTimertime : 0;
-    	       			CFMValue = (unitD == 1609.344) ? CFMValue*3.2808 : CFMValue;
+    	       			CFMValue = (info.totalAscent != null) ? info.totalAscent*60/totalAscSeconds : 0;
+    	       			CFMValue = (unitD == 1609.344) ? Math.round(CFMValue*3.2808) : Math.round(CFMValue);
         	   		} else {
            				CFMValue = 0;
            			}
            		CFMFormat = "0decimal";
            	} else if (uClockFieldMetric == 126) {
 	        	if (jTimertime > 0) {
-    	       			CFMValue = (info.totalAscent != null) ? info.totalAscent*3660/jTimertime : 0;
-    	       			CFMValue = (unitD == 1609.344) ? CFMValue*3.2808 : CFMValue;
+    	       			CFMValue = (info.totalAscent != null) ? info.totalAscent*3600/totalAscSeconds : 0;
+    	       			CFMValue = (unitD == 1609.344) ? Math.round(CFMValue*3.2808) : Math.round(CFMValue);
         	   		} else {
            				CFMValue = 0;
            			}
            		CFMFormat = "0decimal";
+           	} else if (uClockFieldMetric == 127) {
+	        	CFMValue = (Toybox has :ActivityMonitor) ? steps : 0;
+    	       	CFMFormat = "0decimal";
+    	    } else if (uClockFieldMetric == 128) {
+	        	CFMValue = (unitD == 1609.344) ? totalAscent30sec*3.2808*60 : totalAscent30sec*60;
+    	       	CFMFormat = "1decimal";
+    	    } else if (uClockFieldMetric == 129) {
+	        	CFMValue = (unitD == 1609.344) ? totalAscent30sec*3.2808*3600 : totalAscent30sec*3600;
+    	       	CFMFormat = "0decimal";
            	}		 
-
-
 
 
 		//! Conditions for showing the demoscreen       
