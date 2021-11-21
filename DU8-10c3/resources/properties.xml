@@ -75,12 +75,13 @@
     <property id="poverruleWourkout" type="boolean">false</property>
     <property id="pShowRedClock" type="boolean">false</property>
     <property id="pCCnumber" type="number">9999999</property>
+    <property id="pcadenceWorkaround" type="boolean">false</property>
   </properties>
 
 	
   <strings>
     <string id="lCCnumber">C-Code generated on the watch by the corresponding main Datarun premium datafield</string>
-    <string id="lDummysetting4version">Version 3.00c of Datarun ultimate, copy 3 version (dummy setting)</string>
+    <string id="lDummysetting4version">Version 3.04b of Datarun ultimate, copy 3 version (dummy setting)</string>
     <string id="lTempeCalibration">Calibration factor for Tempe temperature in tenths of degrees (3 means 0.3 added, -4 means 0.4 subtracted)</string>
 	<string id="lTimeMenu">___Time items___</string>
 	<string id="lDistanceMenu">___Distance items___</string>
@@ -211,6 +212,7 @@
 	<string id="lTemp">'Temp', current watch temperature</string>
 	<string id="lTempeTemp">'Tempe T', current Tempe temperature (requires Tempe!)</string>
 	<string id="lGarminColors">Use Garmin color scheme for label colors (not applicable for Palladino 10 powerzones)</string>
+	<string id="lHR3sec">'HR 3s', HR averaged over the last 3 seconds</string>
     <string id="lPower">'Power', current running power</string>
     <string id="lPowper3sec">'Pwr 3s', Power averaged over the last 3 seconds</string>
     <string id="lPowper5sec">'Pwr 5s', power averaged over the last 5 seconds</string>
@@ -311,6 +313,7 @@
     <string id="lTotalAscentinmpermin">Vertical ascent averaged over the time one is ascending (in meters/minute or feet/minute depending on watch settings)</string>
     <string id="lTotalAscentinmperhour">Vertical ascent averaged over the time one is ascending (in meters/hour or feet/hour depending on watch settings)</string>
     <string id="lDailySteps">Total number of steps today</string>
+    <string id="lcadenceWorkaround">Apply workaround for bug in cadance metrics being halved (currently for Fenix 6 and FR945 LTE)</string>
  </strings>
 
   <settings>
@@ -332,7 +335,6 @@
     <setting propertyKey="@Properties.pCCnumber" title="@Strings.lCCnumber">
         <settingConfig type="numeric" errorMessage="@Strings.MyNumberError" />
     </setting>
-    
     <setting propertyKey="@Properties.pRoundedPace" title="@Strings.lRoundedPace">
       <settingConfig type="boolean" required="true" />
     </setting>
@@ -469,6 +471,9 @@
     <setting propertyKey="@Properties.pShowRedClock" title="@Strings.lShowRedClock">
       <settingConfig type="boolean" required="false" />
     </setting>
+    <setting propertyKey="@Properties.pcadenceWorkaround" title="@Strings.lcadenceWorkaround">
+      <settingConfig type="boolean" required="true" />
+    </setting>
     <setting propertyKey="@Properties.pMilClockAltern" title="@Strings.lMilClockAltern">
       <settingConfig type="list" required="true">
         <listEntry value="0">@Strings.lShowMilClock</listEntry>
@@ -539,6 +544,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -685,6 +691,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -823,6 +830,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -964,6 +972,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1102,6 +1111,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1241,6 +1251,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1382,6 +1393,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1521,6 +1533,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1669,6 +1682,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1816,6 +1830,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>
@@ -1951,6 +1966,7 @@
         <listEntry value="995">@Strings.lHRMenu</listEntry>
         <listEntry value="45">@Strings.lHeartrate</listEntry>
         <listEntry value="46">@Strings.lHeartrateZone</listEntry>
+        <listEntry value="130">@Strings.lHR3sec</listEntry>
         <listEntry value="47">@Strings.lLapHeartrate</listEntry>
         <listEntry value="48">@Strings.lLLHeartrate</listEntry>
         <listEntry value="49">@Strings.lAveraHeartrate</listEntry>

@@ -25,6 +25,8 @@ class DeviceView extends PowerView {
 	   //! Check whether demoscreen is showed or the metrics 
 	   if (uShowDemo == false ) {
 
+		var info = Activity.getActivityInfo();
+		
 		//! Draw separator lines
         dc.setColor(mColourLine, Graphics.COLOR_TRANSPARENT);
         dc.setPenWidth(2);
@@ -51,6 +53,7 @@ class DeviceView extends PowerView {
         	dc.drawLine(119, 125,  119, 173);
         }
         dc.drawLine(119, 173, 119, 219);
+
         
 		//! Display metrics
         dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
@@ -159,6 +162,7 @@ class DeviceView extends PowerView {
 			dc.drawText(120, 120, Graphics.FONT_TINY, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(81, 160, Graphics.FONT_XTINY, "License code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(180, 160, Graphics.FONT_XTINY, mtest, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+			
 		} else {
       		dc.drawText(120, 33, Graphics.FONT_XTINY, "License needed !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
       		dc.drawText(120, 63, Graphics.FONT_XTINY, "Run is recorded though", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);

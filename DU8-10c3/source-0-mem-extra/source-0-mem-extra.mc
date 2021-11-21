@@ -88,8 +88,14 @@ class ExtramemView extends DatarunpremiumView {
 	hidden var rollverticalRatio			= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 	hidden var AveragerollverticalRatio10sec= 0;
 	var utempcalibration					= 0;
-	var hrRest;
-	
+	var hrRest								   ;
+	var HR1									= 0; 
+    var HR2									= 0;
+    var HR3									= 0;
+    var mGPScolor							= Graphics.COLOR_LT_GRAY;
+    var GPSAccuracy							= "null";
+    var screenWidth 						= mySettings.screenWidth;
+    	
     function initialize() {
         DatarunpremiumView.initialize();
 		
@@ -186,6 +192,13 @@ class ExtramemView extends DatarunpremiumView {
 			steps = info2.steps;
 		}
 
+		//!Calculate 3 sec rolling HR
+        		HR3 					= HR2;
+        		HR2 					= HR1;
+				HR1						= currentHR; 
+		var	AverageHR3sec= (HR1+HR2+HR3)/3;
+		
+
 		//! Options for metrics
 		var sensorIter = getIterator();
 		maxHR = uHrZones[5];
@@ -243,6 +256,7 @@ class ExtramemView extends DatarunpremiumView {
             	fieldFormat[i] = "0decimal";                 	     	
         	}  else if (metric[i] == 61) {
            		fieldValue[i] = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
+           		fieldValue[i] = (ucadenceWorkaround == true) ? fieldValue[i]*2 : fieldValue[i]; //! workaround multiply by two for FR945LTE and Fenix 6 series
             	fieldLabel[i] = "RCadence";
             	fieldFormat[i] = "0decimal";           	
         	}  else if (metric[i] == 62) {
@@ -384,8 +398,41 @@ class ExtramemView extends DatarunpremiumView {
            		fieldValue[i] = (unitD == 1609.344) ? totalAscent30sec*3.2808*3600 : totalAscent30sec*3600;
             	fieldLabel[i] = "VAM-hour";
             	fieldFormat[i] = "0decimal";
-			} 	
+			} else if (metric[i] == 130) {
+           		fieldValue[i] = AverageHR3sec;
+            	fieldLabel[i] = "HR 3s";
+            	fieldFormat[i] = "0decimal";
+			}	
 		}
+
+		//! Show GPS accuracy
+        GPSAccuracy=info.currentLocationAccuracy;
+        if (GPSAccuracy == null or GPSAccuracy == 1) {
+        	mGPScolor = Graphics.COLOR_LT_GRAY;
+        } else if (GPSAccuracy == 2) {
+        	mGPScolor = Graphics.COLOR_RED;
+        } else if (GPSAccuracy == 3) {
+        	mGPScolor = Graphics.COLOR_PURPLE;
+        } else if (GPSAccuracy == 4) {
+			mGPScolor = mColourBackGround;
+		} else {
+		    mGPScolor = Graphics.COLOR_LT_GRAY;
+		}
+		dc.setColor(mGPScolor, Graphics.COLOR_TRANSPARENT);
+		
+		if (screenWidth == 240) {
+			dc.fillRectangle(10, 5, 64, 22); 
+			dc.fillRectangle(164, 5, 55, 22);
+		} else if (screenWidth == 260) { 
+			dc.fillRectangle(11, 5, 69, 24); 
+			dc.fillRectangle(178, 5, 60, 24);
+		} else if (screenWidth == 280) {
+			dc.fillRectangle(12, 6, 77, 26); 
+			dc.fillRectangle(191, 6, 64, 26);
+		}
+
+		dc.setColor(mColourLine, Graphics.COLOR_TRANSPARENT);
+
 
 		//!Choice for metric in Clockfield
 		var CFMValue = 0;
@@ -489,6 +536,7 @@ class ExtramemView extends DatarunpremiumView {
             	CFMFormat = "0decimal";
         	}  else if (uClockFieldMetric == 61) {
            		CFMValue = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
+           		CFMValue = (ucadenceWorkaround == true) ? CFMValue*2 : CFMValue; //! workaround multiply by two for FR945LTE and Fenix 6 series
             	CFMFormat = "0decimal";           	
         	}  else if (uClockFieldMetric == 62) {
            		CFMValue = (info.currentSpeed != null) ? 3.6*((Pace1+Pace2+Pace3)/3)*1000/unitP : 0;
@@ -627,8 +675,10 @@ class ExtramemView extends DatarunpremiumView {
     	    } else if (uClockFieldMetric == 129) {
 	        	CFMValue = (unitD == 1609.344) ? totalAscent30sec*3.2808*3600 : totalAscent30sec*3600;
     	       	CFMFormat = "0decimal";
+           	} else if (uClockFieldMetric == 130) {
+	        	CFMValue = AverageHR3sec;
+    	       	CFMFormat = "0decimal";
            	}		 
-
 
 		//! Conditions for showing the demoscreen       
         if (uShowDemo == false) {
