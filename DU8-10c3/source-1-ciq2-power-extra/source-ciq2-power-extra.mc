@@ -60,6 +60,14 @@ class CiqView extends ExtramemView {
 	hidden var calculateRolavPow			= false;
 	hidden var calculateVertSpeed			= false;
 	hidden var calculateRolavPace			= false;
+	hidden var calculateVertGrade           = false;
+	var DistforGrade                        = new[303];
+	var ElevforGrade                        = new[303];
+	var Vertgrade                           = 0;
+	var stopiteration                       = false;
+	var uVertgradeDist                      = 0.1;
+	var Vertgradsmooth  	        		= new[6]; 
+    var Vertgradsmoothed                    = 0;
 		
     function initialize() {
         ExtramemView.initialize();
@@ -85,6 +93,9 @@ class CiqView extends ExtramemView {
     	uFTPAltitude	 = mApp.getProperty("pFTPAltitude");
     	uFontalertColorLow = mApp.getProperty("pFontalertColorLow");
     	uFontalertColorHigh = mApp.getProperty("pFontalertColorHigh");
+    	uVertgradeDist   = mApp.getProperty("pVertgradeDist");
+
+        uVertgradeDist = (uVertgradeDist<50) ? 0.050 : uVertgradeDist; 
 	
 		uRealHumid = (uRealHumid != 0 ) ? uRealHumid : 1;
 		uFTPHumid = (uFTPHumid != 0 ) ? uFTPHumid : 1;
@@ -134,6 +145,13 @@ class CiqView extends ExtramemView {
 		}
 		
 		
+		for (i = 1; i < 301; ++i) {
+		    DistforGrade[i] = 0;
+		    ElevforGrade[i] = 0;
+		}
+		for (i = 1; i < 6; ++i) {
+		    Vertgradsmooth[i] = 0;
+		}
 		
 		for (i = 1; i < 11; ++i) {
 			Power[i] = 0;
@@ -162,6 +180,12 @@ class CiqView extends ExtramemView {
 		for (i = 1; i < 11; ++i) {
 	    	if (metric[i] == 67 or metric[i] == 108 or metric[i] == 124 or metric[i] == 125 or metric[i] == 126 or metric[i] == 128 or metric[i] == 129 or uClockFieldMetric == 67 or uClockFieldMetric == 108 or uClockFieldMetric == 124 or uClockFieldMetric == 125 or uClockFieldMetric == 126 or uClockFieldMetric == 128 or uClockFieldMetric == 129) {
 				calculateVertSpeed = true; //!Only calculate vertical speed if needed
+			}
+		}
+		
+		for (i = 1; i < 11; ++i) {
+	    	if (metric[i] == 131) {
+				calculateVertGrade = true; //!Only calculate vertical grade if needed
 			}
 		}
 				
@@ -231,9 +255,37 @@ class CiqView extends ExtramemView {
         if (uBacklight) {
              Attention.backlight(true);
         }
-		//! We only do some calculations if the timer is running
 		startTime = (jTimertime == 0) ? Toybox.System.getClockTime() : startTime;
 		
+		//! Calculating vertical grade
+        var k;
+	    if (calculateVertGrade == true) {
+   				for (k = 1; k < 300; ++k) {			
+					DistforGrade[301-k] = DistforGrade[300-k];
+					ElevforGrade[301-k] = ElevforGrade[300-k];
+				}
+				DistforGrade[1]	= (info.elapsedDistance != null) ? info.elapsedDistance : 0;	
+				ElevforGrade[1] = (info.altitude != null) ? info.altitude : 0;
+				stopiteration = false;
+				for (k = 1; k < 301; ++k) {
+					if ((DistforGrade[1] - DistforGrade[k])>(uVertgradeDist)) {
+					   if (stopiteration == false) {
+					       Vertgrade=100*(ElevforGrade[1]-ElevforGrade[k])/(DistforGrade[1]-DistforGrade[k]);
+					       stopiteration = true;
+					   }
+					}
+				}
+		}
+		
+        //!Smoothing of vertical grade over 5 seonds
+        Vertgradsmooth[5] 								= Vertgradsmooth[4];
+        Vertgradsmooth[4] 								= Vertgradsmooth[3];
+        Vertgradsmooth[3] 								= Vertgradsmooth[2];
+        Vertgradsmooth[2] 								= Vertgradsmooth[1];
+		Vertgradsmooth[1]								= Vertgrade; 
+        Vertgradsmoothed = (Vertgradsmooth[1]+Vertgradsmooth[2]+Vertgradsmooth[3]+Vertgradsmooth[4]+Vertgradsmooth[5])/5;
+		
+		//! We only do some calculations if the timer is running		
 		if (mTimerRunning) {  
 			//! Calculate lap time
     	    mLapTimerTime = jTimertime - mLastLapTimeMarker;
@@ -937,7 +989,11 @@ class CiqView extends ExtramemView {
         			fieldLabel[i] = "No workout";
         	    	fieldFormat[i] = "0decimal";
         		}
-        	}
+        	} else if (metric[i] == 131) {
+           		fieldValue[i] = Vertgradsmoothed;
+            	fieldLabel[i] = "V grade";
+            	fieldFormat[i] = "1decimal";
+			}
         	//!einde invullen field metrics
 		}
 		//! Conditions for showing the demoscreen       

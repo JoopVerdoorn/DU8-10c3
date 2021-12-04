@@ -125,7 +125,7 @@ class DatarunpremiumView extends Ui.DataField {
          metric[7]  	= mApp.getProperty("pLowerMiddleMiddleMetric"); 
     	 metric[8]		= mApp.getProperty("pLowerMiddleRightMetric");
          metric[9]   	= mApp.getProperty("pBottomLeftMetric");
-         metric[10]  	= mApp.getProperty("pBottomRightMetric");
+         metric[10]  	= mApp.getProperty("pBottomRightMetric"); 
          uUpperMiddleRowBig  = mApp.getProperty("pUpperMiddleRowBig");
 		 uLowerMiddleRowBig  = mApp.getProperty("pLowerMiddleRowBig");
          uRoundedPace        = mApp.getProperty("pRoundedPace");
@@ -141,8 +141,6 @@ class DatarunpremiumView extends Ui.DataField {
          var uCCnumber	     = mApp.getProperty("pCCnumber");
    		 ucadenceWorkaround = mApp.getProperty("pcadenceWorkaround");
         
- 
-
           	 
         if (System.getDeviceSettings().paceUnits == System.UNIT_STATUTE) {
             unitP = 1609.344;
@@ -167,7 +165,7 @@ class DatarunpremiumView extends Ui.DataField {
 		CCode = CCode*hashfunction((uHrZones[2]*uHrZones[4]+uHrZones[1]+uHrZones[3]).toString())-4331;
         CCode = (CCode > 0) ? CCode : -CCode; 
         CCode = CCode % 346421 + 53263;   
-        licenseOK = (umyNumber == mtest or CCode == uCCnumber) ? true : false;     
+        licenseOK = (umyNumber == mtest or CCode == uCCnumber) ? true : false;
     }
     
     //!! this is called whenever the screen needs to be updated
