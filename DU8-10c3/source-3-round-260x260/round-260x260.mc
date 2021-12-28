@@ -61,7 +61,7 @@ class DeviceView extends PowerView {
     	strTime = myTime.hour.format("%02d") + ":" + myTime.min.format("%02d");
 		//! Show number of laps or clock with current time in top
 		if (uMilClockAltern == 0) {		
-			dc.drawText(130, -3, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
+			dc.drawText(130, -4, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
 		}
 
 		for (var i = 1; i < 11; ++i) {
@@ -111,15 +111,23 @@ class DeviceView extends PowerView {
 	    		}
 	       	} else if ( i == 9 ) {	//!lower row, left
 	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,202,096,029,206,087,229");
+	    			if (uLabelfontbig == true) {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,202,096,029,206,087,229");
+	    			} else {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,202,096,029,206,087,228");
+	    			}
 	    		} else {
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,202,089,036,206,087,229");
+	    			if (uLabelfontbig == true) {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,202,089,036,206,087,229");
+	    			} else {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"080,202,089,036,206,087,228");
+	    			}
 	    		}
 	       	} else if ( i == 10 ) {	//!lower row, right
 	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
 	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,202,193,126,206,170,229");
 	    		} else {
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,202,186,133,206,170,229");
+	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"179,202,186,133,206,170,228");
 	    		}
        		}       	
 		}
@@ -149,10 +157,11 @@ class DeviceView extends PowerView {
 		dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
 
 		if (licenseOK == true) {
-      		dc.drawText(130, 40, Graphics.FONT_XTINY, "DU8-10c3", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+      		dc.drawText(130, 40, Graphics.FONT_XTINY, "DU8-10c2", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(130, 120, Graphics.FONT_TINY, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(81, 160, Graphics.FONT_XTINY, "License code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(180, 160, Graphics.FONT_MEDIUM, mtest, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+			
 			
 		} else {
       		dc.drawText(130, 33, Graphics.FONT_XTINY, "License needed !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);

@@ -112,15 +112,31 @@ class DeviceView extends PowerView {
 	    		}
 	       	} else if ( i == 9 ) {	//!lower row, left
 	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"074,187,088,025,190,080,212");
+	    			if (uLabelfontbig == true) {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"074,187,088,025,190,080,212");
+	    			} else {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"074,187,088,025,190,080,211");
+	    			}
 	    		} else {
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"074,187,082,033,190,080,212");
+	    			if (uLabelfontbig == true) {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"074,187,082,033,190,080,212");
+	    			} else {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"074,187,082,033,190,080,211");
+	    			}
 	    		}
 	       	} else if ( i == 10 ) {	//!lower row, right
 	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"165,187,180,117,190,157,212");
+	    		    if (uLabelfontbig == true) {
+	    		        Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"165,187,180,117,190,157,212");
+	    		    } else {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"165,187,180,117,190,157,211");
+	    			}
 	    		} else {
-	    			Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"165,187,172,123,190,157,212");
+	    			if (uLabelfontbig == true) {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"165,187,172,123,190,157,212");
+	    			} else {
+	    			    Formatting(dc,i,fieldValue[i],fieldFormat[i],fieldLabel[i],"165,187,172,123,190,157,211");
+	    			}
 	    		}
        		}       	
 		}
@@ -158,13 +174,14 @@ class DeviceView extends PowerView {
 		dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
 	
 		if (licenseOK == true) {
-      		dc.drawText(120, 40, Graphics.FONT_XTINY, "DU8-10c3", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+      		dc.drawText(120, 40, Graphics.FONT_XTINY, "DU8-10c2", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(120, 120, Graphics.FONT_TINY, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(81, 160, Graphics.FONT_XTINY, "License code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(180, 160, Graphics.FONT_XTINY, mtest, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 
+			
 		} else {
-      		dc.drawText(120, 33, Graphics.FONT_XTINY, "License needed !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+      		dc.drawText(120, 33, Graphics.FONT_XTINY, "License needed!!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
       		dc.drawText(120, 63, Graphics.FONT_XTINY, "Run is recorded though", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(60, 105, Graphics.FONT_MEDIUM, "ID 0: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(161, 98, Graphics.FONT_NUMBER_MEDIUM, ID0+12781 , Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
