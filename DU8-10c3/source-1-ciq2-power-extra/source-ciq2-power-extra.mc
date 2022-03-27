@@ -65,7 +65,7 @@ class CiqView extends ExtramemView {
 	var ElevforGrade                        = new[303];
 	var Vertgrade                           = 0;
 	var stopiteration                       = false;
-	var uVertgradeDist                      = 0.1;
+	var uVertgradeDist                      = 100;
 	var Vertgradsmooth  	        		= new[6]; 
     var Vertgradsmoothed                    = 0;
 		
@@ -124,6 +124,10 @@ class CiqView extends ExtramemView {
 	    	mFontalertColorLow 	 = Graphics.COLOR_BLACK;
 	    } else if ( uFontalertColorLow == 7 ) {
 	    	mFontalertColorLow 	 = Graphics.COLOR_DK_BLUE;
+		} else if ( uFontalertColorLow == 8 ) {
+	    	mFontalertColorLow 	 = Graphics.COLOR_YELLOW;
+		} else if ( uFontalertColorLow == 9 ) {
+	    	mFontalertColorLow 	 = Graphics.COLOR_ORANGE;
 		}
 		
 		if ( uFontalertColorHigh == 0 ) {
@@ -140,8 +144,12 @@ class CiqView extends ExtramemView {
 	    	mFontalertColorHigh 	 = Graphics.COLOR_RED;
 		} else if ( uFontalertColorHigh == 6 ) {
 	    	mFontalertColorHigh 	 = Graphics.COLOR_BLACK;
-	    } else if ( uFontalertColorLow == 7 ) {
+	    } else if ( uFontalertColorHigh == 7 ) {
 	    	mFontalertColorHigh 	 = Graphics.COLOR_DK_BLUE;
+		} else if ( uFontalertColorHigh == 8 ) {
+	    	mFontalertColorLow 	 = Graphics.COLOR_YELLOW;
+		} else if ( uFontalertColorHigh == 9 ) {
+	    	mFontalertColorLow 	 = Graphics.COLOR_ORANGE;
 		}
 		
 		
