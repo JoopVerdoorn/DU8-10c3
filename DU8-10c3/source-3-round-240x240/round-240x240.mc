@@ -54,17 +54,24 @@ class DeviceView extends PowerView {
         }
         dc.drawLine(119, 173, 119, 219);
 
+        //! Display GPS accuracy
+        dc.setColor(mGPScolor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(10, 5, 64, 22); 
+		if (uMilClockAltern == 1) {
+		   dc.fillRectangle(183, 5, 55, 22);
+	    } else {
+	       dc.fillRectangle(165, 5, 55, 22);
+	    }
         
-		//! Display metrics
         dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
-
+        //! Show number of laps, metric or clock with current time in top
 		myTime = Toybox.System.getClockTime(); 
     	strTime = myTime.hour.format("%02d") + ":" + myTime.min.format("%02d");
-		//! Show number of laps or clock with current time in top
 		if (uMilClockAltern == 0) {		
 			dc.drawText(120, -4, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
 		}
 
+		//! Display metrics
 		for (var i = 1; i < 11; ++i) {
 	    	if ( i == 1 ) {			//!upper row, left
 	    		if ( fieldFormat[i].equals("time") == true and fieldValue[i] > 36000) { 
@@ -174,12 +181,13 @@ class DeviceView extends PowerView {
 		dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
 	
 		if (licenseOK == true) {
-      		dc.drawText(120, 40, Graphics.FONT_XTINY, "DU8-10c3", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-			dc.drawText(120, 120, Graphics.FONT_TINY, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+      		dc.drawText(120, 120, Graphics.FONT_TINY, "Registered !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(81, 160, Graphics.FONT_XTINY, "License code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
 			dc.drawText(180, 160, Graphics.FONT_XTINY, mtest, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
-
-			
+			if (c0Version == true) {
+				dc.drawText(81, 190, Graphics.FONT_XTINY, "C-Code: ", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+				dc.drawText(160, 190, Graphics.FONT_XTINY, CCode, Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
+			}
 		} else {
       		dc.drawText(120, 33, Graphics.FONT_XTINY, "License needed !!", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
       		dc.drawText(120, 63, Graphics.FONT_XTINY, "Run is recorded though", Graphics.TEXT_JUSTIFY_CENTER|Graphics.TEXT_JUSTIFY_VCENTER);
