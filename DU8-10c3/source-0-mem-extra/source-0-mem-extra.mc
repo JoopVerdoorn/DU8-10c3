@@ -298,8 +298,7 @@ class ExtramemView extends DatarunpremiumView {
             	fieldFormat[i] = "0decimal";                 	     	
         	}  else if (metric[i] == 61) {
            		fieldValue[i] = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
-           		fieldValue[i] = (ucadenceWorkaround == true) ? fieldValue[i]*2 : fieldValue[i]; //! workaround multiply by two for FR945LTE and Fenix 6 series
-            	fieldLabel[i] = "RCadence";
+           		fieldLabel[i] = "RCadence";
             	fieldFormat[i] = "0decimal";           	
         	}  else if (metric[i] == 62) {
            		fieldValue[i] = (info.currentSpeed != null) ? 3.6*((Pace1+Pace2+Pace3)/3)*1000/unitP : 0;
@@ -565,8 +564,7 @@ class ExtramemView extends DatarunpremiumView {
             	CFMFormat = "0decimal";
         	}  else if (uClockFieldMetric == 61) {
            		CFMValue = (info.currentCadence != null) ? Math.round(info.currentCadence/2) : 0;
-           		CFMValue = (ucadenceWorkaround == true) ? CFMValue*2 : CFMValue; //! workaround multiply by two for FR945LTE and Fenix 6 series
-            	CFMFormat = "0decimal";           	
+           		CFMFormat = "0decimal";           	
         	}  else if (uClockFieldMetric == 62) {
            		CFMValue = (info.currentSpeed != null) ? 3.6*((Pace1+Pace2+Pace3)/3)*1000/unitP : 0;
             	CFMFormat = "2decimal";           	
@@ -710,17 +708,13 @@ class ExtramemView extends DatarunpremiumView {
            	} else if (uClockFieldMetric == 131) {
            		CFMValue = Vertgradsmoothed;
             	CFMFormat = "1decimal";
+			} else if (uClockFieldMetric == 132) {
+    	        CFMValue = mLastLapMaxHR;
+            	CFMFormat = "0decimal";   
+			} else if (uClockFieldMetric == 133) {
+    	        CFMValue = mLastLapMinHR;
+            	CFMFormat = "0decimal";   
 			}
-
-		//! Conditions for showing the demoscreen       
-        if (uShowDemo == false) {
-        	if (licenseOK == false && jTimertime > 900)  {
-        		uShowDemo = true;        		
-        	}
-        }
-
-	   //! Check whether demoscreen is showed or the metrics 
-	   if (uShowDemo == false ) {
 
 		//! Display colored labels on screen	
 		if (mySettings.screenWidth == 260 and mySettings.screenHeight == 260) {  //! Fenix 6 pro labels
@@ -1009,13 +1003,13 @@ class ExtramemView extends DatarunpremiumView {
 			}
 	    	var strTime = AmPmhour + ":" + myTime.min.format("%02d") + " " + AmPm;
 	    	if (mySettings.screenWidth == 260 and mySettings.screenHeight == 260) {
-				dc.drawText(140, -4, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
+				dc.drawText(140, 1, Graphics.FONT_SMALL, strTime, Graphics.TEXT_JUSTIFY_CENTER);
 	    	} else if (mySettings.screenWidth == 280 and mySettings.screenHeight == 280) {
-				dc.drawText(150, -3, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
+				dc.drawText(150, 2, Graphics.FONT_SMALL, strTime, Graphics.TEXT_JUSTIFY_CENTER);
 	    	} else if (mySettings.screenWidth == 416 and mySettings.screenHeight == 416) {
-				dc.drawText(223, 0, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
+				dc.drawText(223, 4, Graphics.FONT_SMALL, strTime, Graphics.TEXT_JUSTIFY_CENTER);
 	    	} else {
-				dc.drawText(130, -3, Graphics.FONT_MEDIUM, strTime, Graphics.TEXT_JUSTIFY_CENTER);
+				dc.drawText(130, 1, Graphics.FONT_SMALL, strTime, Graphics.TEXT_JUSTIFY_CENTER);
 			}
 		} else if (uMilClockAltern == 3) {		//! Display of metric in Clock field
 			var originalFontcolor = mColourFont;
@@ -1062,8 +1056,7 @@ class ExtramemView extends DatarunpremiumView {
     	    }
     	    mColourFont = originalFontcolor;
 	    	dc.setColor(mColourFont, Graphics.COLOR_TRANSPARENT);
-		}
-	   }		
+		}	
 	}
 
 	function Coloring(dc,counter,testvalue,CorString) {
